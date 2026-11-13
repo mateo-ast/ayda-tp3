@@ -1,0 +1,13 @@
+.git/
+.gitignore
+.venv/
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec
+Datos.txt
+Datos_*.txt
+tiempos.log
+README.md
+COMPARISON.md

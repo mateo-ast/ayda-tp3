@@ -11,6 +11,7 @@ Informe comparativo de algoritmos y estructuras:
 
 - Python 3.11 o superior (64 bits recomendado).
 - [uv](https://docs.astral.sh/uv/) para gestionar el entorno.
+- Docker o Podman (opcional, solo para compilar el `.exe` desde Linux).
 - No usa dependencias externas en tiempo de ejecución.
 
 ## Ejecución
@@ -186,10 +187,48 @@ Con 100 millones de valores, Counting Sort necesita aproximadamente 1,5 GB de
 RAM (datos + conteos + prefijos + resultado). Conviene usar una PC de 64 bits
 con al menos 4 GB de memoria libre.
 
-## Compilar el `.exe` en Windows
+## Compilar el `.exe`
 
-El ejecutable debe compilarse en un PC Windows con Python de 64 bits. No se
-puede generar desde Linux porque PyInstaller no hace compilación cruzada.
+PyInstaller no hace compilación cruzada: hay que ejecutar un Python de Windows.
+Por eso el proyecto ofrece dos caminos.
+
+### Desde Linux con Docker o Podman
+
+El `Dockerfile` usa la imagen `tobix/pywine:3.12`, que ejecuta Python de Windows
+sobre Wine. El script `build_windows.sh` construye la imagen, ejecuta
+PyInstaller dentro de Wine y copia el resultado a `dist/`.
+
+Requisitos:
+
+- Docker o Podman.
+- Arquitectura x86_64/amd64.
+- Conexión a Internet la primera vez (la imagen pesa aproximadamente 1,3 GB).
+
+```bash
+chmod +x build_windows.sh   # solo la primera vez
+./build_windows.sh
+```
+
+Resultado: `dist/AnalisisDatos.exe`.
+
+También se puede hacer manualmente:
+
+```bash
+docker build -t ayda-wine-builder .
+mkdir -p dist
+docker run --rm -v "$PWD/dist:/app/dist" ayda-wine-builder
+```
+
+En Fedora u otros sistemas con SELinux hay que añadir `:Z` al volumen:
+`-v "$PWD/dist:/app/dist:Z"`. El script `build_windows.sh` lo detecta y lo hace
+automáticamente.
+
+> El `.exe` es un binario de Windows. Se puede ejecutar en Windows o con Wine,
+> pero no es un ejecutable nativo de Linux.
+
+### Desde Windows
+
+En un PC Windows con Python de 64 bits:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build_windows.ps1
@@ -199,25 +238,30 @@ El script ejecuta:
 
 ```powershell
 uv sync
-uv run --with pyinstaller pyinstaller --onefile --console --clean `
+uv run --with pyinstaller pyinstaller --onefile --console --clean --noupx `
     --name AnalisisDatos --paths src run.py
 ```
 
 Resultado: `dist\AnalisisDatos.exe`.
 
-Recomendaciones:
+### Recomendaciones
 
 - Copiar el `.exe` a una carpeta con permisos de escritura, por ejemplo
   `C:\Ayda\`.
 - No ejecutarlo desde `Program Files`, porque necesita crear archivos.
 - Si Windows Defender marca el ejecutable de un solo archivo, compilar con
   `--onedir` en lugar de `--onefile`.
+- Se usa `--noupx` para evitar falsos positivos de antivirus y problemas al
+  cargar la DLL de Python bajo Wine; el `.exe` queda algo más grande.
 - Usar Python de 64 bits: uno de 32 bits no puede manejar los arreglos grandes.
 
 ## Estructura del código
 
 ```text
 run.py                    Entrada para desarrollo y PyInstaller
+Dockerfile                Imagen de Wine para compilar el .exe desde Linux
+build_windows.sh          Compila el .exe desde Linux (Docker/Podman)
+build_windows.ps1         Compila el .exe desde Windows
 src/ayda/config.py        Rutas y constantes
 src/ayda/file_io.py       Generación, lectura, escritura y verificación
 src/ayda/analysis.py      Máximo, mínimo y frecuencias

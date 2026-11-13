@@ -11,7 +11,7 @@ Write-Host "Comprobando Python de 64 bits..."
 uv run python -c "import struct; assert struct.calcsize('P') == 8, 'Se requiere Python de 64 bits'"
 
 Write-Host "Compilando con PyInstaller..."
-uv run --with pyinstaller pyinstaller --onefile --console --clean `
+uv run --with pyinstaller pyinstaller --onefile --console --clean --noupx `
     --name AnalisisDatos --paths src run.py
 
 Write-Host ""

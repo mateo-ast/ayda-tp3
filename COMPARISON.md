@@ -29,14 +29,14 @@ volúmenes de datos.
 
 Las mediciones se realizaron con la implementación de este repositorio:
 
-| Elemento | Detalle |
-|---|---|
-| Lenguaje | Python 3.14, biblioteca estándar |
-| Datos | `array('I')` de enteros de 32 bits |
-| Procesamiento | Un solo hilo |
-| Sistema | Linux, 15 GB de RAM, disco NVMe |
-| Tiempo | `time.perf_counter()` |
-| Memoria | Máximo residente del proceso con `/usr/bin/time -v` |
+| Elemento      | Detalle                                             |
+| ------------- | --------------------------------------------------- |
+| Lenguaje      | Python 3.14, biblioteca estándar                    |
+| Datos         | `array('I')` de enteros de 32 bits                  |
+| Procesamiento | Un solo hilo                                        |
+| Sistema       | Linux, 15 GB de RAM, disco NVMe                     |
+| Tiempo        | `time.perf_counter()`                               |
+| Memoria       | Máximo residente del proceso con `/usr/bin/time -v` |
 
 Los valores marcados como **medidos** se ejecutaron realmente. Los marcados
 como **estimados** se obtuvieron por extrapolación de las mediciones y de la
@@ -50,11 +50,11 @@ complejidad del algoritmo.
 
 ### 1.1 Complejidad algorítmica
 
-| Algoritmo | Complejidad mejor caso | Complejidad peor caso | Complejidad promedio | Memoria auxiliar |
-|---|---|---|---|---|
-| Counting Sort | `O(n + k)` | `O(n + k)` | `O(n + k)` | `O(n + k)` |
-| Selection Sort | `O(n²)` | `O(n²)` | `O(n²)` | `O(1)` |
-| Heap Sort | `O(n log n)` | `O(n log n)` | `O(n log n)` | `O(1)` |
+| Algoritmo      | Complejidad mejor caso | Complejidad peor caso | Complejidad promedio | Memoria auxiliar |
+| -------------- | ---------------------- | --------------------- | -------------------- | ---------------- |
+| Counting Sort  | `O(n + k)`             | `O(n + k)`            | `O(n + k)`           | `O(n + k)`       |
+| Selection Sort | `O(n²)`                | `O(n²)`               | `O(n²)`              | `O(1)`           |
+| Heap Sort      | `O(n log n)`           | `O(n log n)`          | `O(n log n)`         | `O(1)`           |
 
 Para Counting Sort, `k` es el tamaño del rango de claves. En este programa se
 usa `k = M + 1`, donde `M` es el valor máximo observado en los datos. Por eso
@@ -70,13 +70,13 @@ compara elementos: cuenta apariciones y calcula posiciones.
 
 ### 1.2 Tiempo de ejecución
 
-| N | Rango M | Counting Sort | Selection Sort | Heap Sort |
-|---:|---:|---:|---:|---:|
-| 10.000 | 10.000 | — | **2,68 s** (medido) | — |
-| 20.000 | 20.000 | — | **10,77 s** (medido) | — |
-| 100.000 | 100.000 | **38 ms** (medido) | ~4,5 min (estimado) | **507 ms** (medido) |
-| 1.200.000 | 1.200.000 | **559 ms** (medido) | ~10,8 h (estimado) | **7,74 s** (medido) |
-| 10.000.000 | 100.000.000 | **8,98 s** (medido) | ~31 días (estimado) | ~74 s (estimado) |
+|           N |     Rango M |       Counting Sort |       Selection Sort |             Heap Sort |
+| ----------: | ----------: | ------------------: | -------------------: | --------------------: |
+|      10.000 |      10.000 |                   — |  **2,68 s** (medido) |                     — |
+|      20.000 |      20.000 |                   — | **10,77 s** (medido) |                     — |
+|     100.000 |     100.000 |  **38 ms** (medido) |  ~4,5 min (estimado) |   **507 ms** (medido) |
+|   1.200.000 |   1.200.000 | **559 ms** (medido) |   ~10,8 h (estimado) |   **7,74 s** (medido) |
+|  10.000.000 | 100.000.000 | **8,98 s** (medido) |  ~31 días (estimado) |      ~74 s (estimado) |
 | 100.000.000 | 100.000.000 | ~1–2 min (estimado) | ~8,5 años (estimado) | ~15–25 min (estimado) |
 
 Observaciones:
@@ -95,13 +95,13 @@ Observaciones:
 
 #### Memoria teórica
 
-| Algoritmo | Memoria auxiliar | Total aproximado con N = 100.000.000 |
-|---|---|---|
-| Counting Sort | `O(N + M)` | ~1,2 GB (hasta ~1,6 GB transitorio) con M = 100.000.000 |
-| Selection Sort | `O(N)` por la copia | ~400 MB de copia + 400 MB de datos |
-| Heap Sort | `O(N)` por la copia | ~400 MB de copia + 400 MB de datos |
-| Árbol AVL | `O(u)` | ~1,26 GB con ~63,2 M de claves únicas + 400 MB de datos |
-| Heap binario | `O(N)` | ~400 MB + 400 MB de datos |
+| Algoritmo      | Memoria auxiliar    | Total aproximado con N = 100.000.000                    |
+| -------------- | ------------------- | ------------------------------------------------------- |
+| Counting Sort  | `O(N + M)`          | ~1,2 GB (hasta ~1,6 GB transitorio) con M = 100.000.000 |
+| Selection Sort | `O(N)` por la copia | ~400 MB de copia + 400 MB de datos                      |
+| Heap Sort      | `O(N)` por la copia | ~400 MB de copia + 400 MB de datos                      |
+| Árbol AVL      | `O(u)`              | ~1,26 GB con ~63,2 M de claves únicas + 400 MB de datos |
+| Heap binario   | `O(N)`              | ~400 MB + 400 MB de datos                               |
 
 En Counting Sort se distinguen dos picos:
 
@@ -121,11 +121,11 @@ nodo**. Para valores aleatorios con `N = M = 100.000.000`, se esperan unas
 
 #### Memoria medida
 
-| N | Rango M | Memoria máxima del proceso |
-|---:|---:|---:|
-| 100.000 | 100.000 | 37,5 MB |
-| 1.200.000 | 1.200.000 | 93,8 MB |
-| 10.000.000 | 100.000.000 | 852,7 MB |
+|          N |     Rango M | Memoria máxima del proceso |
+| ---------: | ----------: | -------------------------: |
+|    100.000 |     100.000 |                    37,5 MB |
+|  1.200.000 |   1.200.000 |                    93,8 MB |
+| 10.000.000 | 100.000.000 |                   852,7 MB |
 
 Estos valores incluyen el intérprete de Python, el arreglo de datos y las
 estructuras auxiliares del algoritmo ejecutado.
@@ -190,14 +190,14 @@ hay memoria para Counting Sort.
 
 ### 1.5 Comparación directa para grandes volúmenes
 
-| Situación | Mejor opción | Motivo |
-|---|---|---|
-| Enteros, `M ≈ N`, memoria disponible | Counting Sort | `O(N + M)` y muy rápido en la práctica |
-| Rango `M` mucho mayor que `N` | Heap Sort | Counting desperdicia memoria y tiempo en el rango |
-| Memoria muy limitada | Heap Sort | Evita el arreglo de conteos de tamaño `M` |
-| Se necesita estabilidad | Counting Sort | Selection y Heap Sort no son estables |
-| `N` pequeño (miles) | Cualquiera; Selection es aceptable | La diferencia es despreciable |
-| `N = 100.000.000` | Counting Sort si `M ≈ N`; si no, Heap Sort | Selection es inviable en todos los casos |
+| Situación                            | Mejor opción                               | Motivo                                            |
+| ------------------------------------ | ------------------------------------------ | ------------------------------------------------- |
+| Enteros, `M ≈ N`, memoria disponible | Counting Sort                              | `O(N + M)` y muy rápido en la práctica            |
+| Rango `M` mucho mayor que `N`        | Heap Sort                                  | Counting desperdicia memoria y tiempo en el rango |
+| Memoria muy limitada                 | Heap Sort                                  | Evita el arreglo de conteos de tamaño `M`         |
+| Se necesita estabilidad              | Counting Sort                              | Selection y Heap Sort no son estables             |
+| `N` pequeño (miles)                  | Cualquiera; Selection es aceptable         | La diferencia es despreciable                     |
+| `N = 100.000.000`                    | Counting Sort si `M ≈ N`; si no, Heap Sort | Selection es inviable en todos los casos          |
 
 ---
 
@@ -205,27 +205,27 @@ hay memoria para Counting Sort.
 
 ### 2.1 Complejidad de las operaciones
 
-| Operación | Árbol AVL | Heap binario |
-|---|---|---|
-| Construcción desde N datos | `O(N log u)` insertando uno por uno | `O(N)` con heapify |
-| Inserción | `O(log u)` | `O(log N)` |
-| Búsqueda de un valor | `O(log u)` | `O(N)` |
-| Eliminación | `O(log u)` de una clave arbitraria | `O(log N)`, pero solo de la raíz |
-| Obtener mínimo/máximo | `O(log u)` | `O(1)` |
-| Recorrido ordenado | `O(u)` con InOrden | No directo; requiere ordenar |
-| Memoria | ~20 bytes por clave única | 4 bytes por elemento |
+| Operación                  | Árbol AVL                           | Heap binario                     |
+| -------------------------- | ----------------------------------- | -------------------------------- |
+| Construcción desde N datos | `O(N log u)` insertando uno por uno | `O(N)` con heapify               |
+| Inserción                  | `O(log u)`                          | `O(log N)`                       |
+| Búsqueda de un valor       | `O(log u)`                          | `O(N)`                           |
+| Eliminación                | `O(log u)` de una clave arbitraria  | `O(log N)`, pero solo de la raíz |
+| Obtener mínimo/máximo      | `O(log u)`                          | `O(1)`                           |
+| Recorrido ordenado         | `O(u)` con InOrden                  | No directo; requiere ordenar     |
+| Memoria                    | ~20 bytes por clave única           | 4 bytes por elemento             |
 
 `u` es la cantidad de claves únicas del AVL; `N` es la cantidad de elementos
 del heap. El AVL maneja duplicados con un contador, por lo que `u ≤ N`.
 
 ### 2.2 Tiempos medidos con 100.000 elementos
 
-| Operación | AVL | Heap Max |
-|---|---:|---:|
-| Construcción | 1,172 s | 0,035 s |
-| Búsqueda | 1,81 µs | 3.704,90 µs (3,70 ms) |
-| Inserción | 15,14 µs | 3,99 µs |
-| Eliminación | 13,66 µs (clave arbitraria) | 5,15 µs (solo raíz) |
+| Operación    |                         AVL |              Heap Max |
+| ------------ | --------------------------: | --------------------: |
+| Construcción |                     1,172 s |               0,035 s |
+| Búsqueda     |                     1,81 µs | 3.704,90 µs (3,70 ms) |
+| Inserción    |                    15,14 µs |               3,99 µs |
+| Eliminación  | 13,66 µs (clave arbitraria) |   5,15 µs (solo raíz) |
 
 Datos: 100.000 valores aleatorios en el rango 0..99.999. El AVL quedó con
 63.138 nodos únicos. La búsqueda del heap es lineal: se midió el promedio de
@@ -246,10 +246,10 @@ Conclusiones de las mediciones:
 
 ### 2.3 Uso de memoria
 
-| Estructura | Memoria por elemento | N = 100.000 | N = 100.000.000 |
-|---|---:|---:|---:|
-| AVL | 20 bytes por clave única | ~1,26 MB (63.138 nodos) | ~1,26 GB si hay ~63,2 M de claves únicas |
-| Heap | 4 bytes | ~400 KB | ~400 MB |
+| Estructura |     Memoria por elemento |             N = 100.000 |                          N = 100.000.000 |
+| ---------- | -----------------------: | ----------------------: | ---------------------------------------: |
+| AVL        | 20 bytes por clave única | ~1,26 MB (63.138 nodos) | ~1,26 GB si hay ~63,2 M de claves únicas |
+| Heap       |                  4 bytes |                 ~400 KB |                                  ~400 MB |
 
 El AVL usa más memoria porque necesita claves, contadores, dos punteros y la
 altura de cada nodo. El heap solo necesita el arreglo de valores. Aun así, el
@@ -279,16 +279,16 @@ en objetos de Python; por eso el programa usa arreglos paralelos.
 
 ### 2.5 Cuándo usar cada estructura
 
-| Necesidad | Estructura recomendada |
-|---|---|
-| Buscar valores frecuentemente | AVL |
-| Insertar y eliminar claves arbitrarias | AVL |
-| Recorrer datos ordenados | AVL |
-| Obtener siempre el máximo o el mínimo | Heap |
-| Construir una cola de prioridad rápido | Heap |
-| Ordenar con Heap Sort | Heap |
-| Ahorrar memoria | Heap |
-| Grandes volúmenes con búsquedas | AVL (si la memoria alcanza) |
+| Necesidad                              | Estructura recomendada      |
+| -------------------------------------- | --------------------------- |
+| Buscar valores frecuentemente          | AVL                         |
+| Insertar y eliminar claves arbitrarias | AVL                         |
+| Recorrer datos ordenados               | AVL                         |
+| Obtener siempre el máximo o el mínimo  | Heap                        |
+| Construir una cola de prioridad rápido | Heap                        |
+| Ordenar con Heap Sort                  | Heap                        |
+| Ahorrar memoria                        | Heap                        |
+| Grandes volúmenes con búsquedas        | AVL (si la memoria alcanza) |
 
 ---
 
