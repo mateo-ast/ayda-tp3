@@ -1,0 +1,10 @@
+[project]
+name = "ayda-analysis"
+version = "1.0.0"
+description = "Análisis de grandes volúmenes de datos con Python puro"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv]
+package = false
