@@ -4,6 +4,9 @@ Programa de consola en Python puro con menú interactivo para generar, analizar
 y ordenar un archivo de números, además de construir un árbol AVL y un heap
 binario.
 
+Informe comparativo de algoritmos y estructuras:
+[COMPARISON.md](COMPARISON.md).
+
 ## Requisitos
 
 - Python 3.11 o superior (64 bits recomendado).
