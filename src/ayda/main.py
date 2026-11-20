@@ -6,7 +6,8 @@ import sys
 import time
 
 from .analysis import find_extremes, is_sorted, top_frequent, values_checksum
-from .avl import AVLTree
+from .avl import AVLTree, OperationReport
+from .avl_view import LEGEND, is_partial, render_changes, render_search, render_tree
 from .config import (
     COUNTING_FILE,
     DATA_FILE,
@@ -420,15 +421,113 @@ def option_times() -> None:
 
 
 def show_avl(avl: AVLTree) -> None:
-    print(f"Altura: {avl.height()}")
-    print(f"Nodos únicos: {fmt_int(avl.node_count)}")
-    print(f"Valores almacenados (con repeticiones): {fmt_int(avl.total_values)}")
+    print("  Altura                          :", avl.height())
+    print("  Nodos únicos                    :", fmt_int(avl.node_count))
+    print("  Valores (con repeticiones)      :", fmt_int(avl.total_values))
+    print("\nEstructura:")
+    for line in render_tree(avl):
+        print(line)
+    if is_partial(avl):
+        print("(vista parcial: se muestran los primeros niveles)")
+
     sample = avl.in_order(50)
-    print("InOrden (primeros 50):")
+    print("\nInOrden (primeros 50):")
     if not sample:
         print("  (árbol vacío)")
     for value, count in sample:
-        print(f"  {fmt_int(value)} x {fmt_int(count)}")
+        print(f"  {fmt_int(value):>14}  x {fmt_int(count)}")
+
+
+def show_changes(avl: AVLTree, report: OperationReport) -> None:
+    """Muestra el detalle legible de una inserción o eliminación."""
+    if not report.found:
+        return
+
+    if report.operation == "inserción":
+        print(f"\n--- Cambios de la inserción: {fmt_int(report.key)} ---")
+        if report.created:
+            print("Resultado: nuevo nodo.")
+        else:
+            print(
+                "Resultado: el valor ya existía; contador "
+                f"{fmt_int(report.count_before)} → {fmt_int(report.count_after)}."
+            )
+    else:
+        print(f"\n--- Cambios de la eliminación: {fmt_int(report.key)} ---")
+        if report.count_changed and not report.removed:
+            print(
+                "Resultado: bajó el contador "
+                f"{fmt_int(report.count_before)} → {fmt_int(report.count_after)}; "
+                "la estructura no cambió."
+            )
+        else:
+            print("Resultado: se eliminó el nodo (una aparición).")
+            if report.successor is not None:
+                print(f"Sucesor copiado: {fmt_int(report.successor)}")
+
+    if report.path:
+        print("Camino: " + " → ".join(fmt_int(key) for key in report.path))
+    if report.rotations:
+        print("Rotaciones:")
+        for rotation in report.rotations:
+            print(f"  - {rotation.direction} en {fmt_int(rotation.key)}")
+    else:
+        print("Rotaciones: ninguna")
+    print(
+        f"Altura: {report.height_before} → {report.height_after} | "
+        f"Nodos: {fmt_int(report.nodes_before)} → {fmt_int(report.nodes_after)} | "
+        f"Valores: {fmt_int(report.values_before)} → {fmt_int(report.values_after)}"
+    )
+
+    if report.created or report.removed or report.rotations or report.count_changed:
+        print("\nSubárbol afectado:")
+        for line in render_changes(avl, report):
+            print(line)
+        print(LEGEND)
+
+
+def show_search(avl: AVLTree, path: list[int], key: int) -> None:
+    """Muestra el recorrido de una búsqueda y resalta el nodo encontrado."""
+    if not path:
+        return
+    print("Camino: " + " → ".join(fmt_int(item) for item in path))
+    print("\nSubárbol recorrido:")
+    for line in render_search(avl, path, key):
+        print(line)
+    print(LEGEND)
+
+
+def show_avl_subtree(avl: AVLTree) -> None:
+    """Pide una clave raíz y una profundidad, y dibuja ese subárbol."""
+    if avl.node_count == 0:
+        print("El árbol está vacío.")
+        return
+
+    raw = input("Clave raíz [Enter = raíz del árbol]: ").strip()
+    if raw == "":
+        root = avl.root
+        title = "Árbol completo" if not is_partial(avl) else "Vista parcial del árbol"
+    else:
+        try:
+            key = int(raw)
+        except ValueError:
+            print("Ingrese una clave entera válida.")
+            return
+        root = avl.find_node(key)
+        if root == -1:
+            print(f"La clave {fmt_int(key)} no está en el árbol.")
+            return
+        title = f"Subárbol desde {fmt_int(key)}"
+
+    depth = ask_int(
+        "Profundidad máxima [Enter = 4]: ", minimum=1, maximum=8, default=4
+    )
+    print(f"\n{title}:")
+    for line in render_tree(avl, root=root, max_depth=depth):
+        print(line)
+    if is_partial(avl, root):
+        print("(vista parcial: elegí otra clave o mayor profundidad para explorar)")
+    print(LEGEND)
 
 
 def option_avl() -> None:
@@ -449,7 +548,8 @@ def option_avl() -> None:
         print("3) Buscar valor")
         print("4) Eliminar valor")
         print("5) Mostrar altura, nodos e InOrden")
-        print("6) Liberar árbol")
+        print("6) Ver árbol o subárbol")
+        print("7) Liberar árbol")
         print("0) Volver")
 
         option = input("Opción AVL: ").strip()
@@ -483,17 +583,19 @@ def option_avl() -> None:
             show_avl(tree)
             record_time("AVL: construcción", dataset.count, dataset.max_value, elapsed)
 
-        elif option in ("2", "3", "4", "5", "6"):
+        elif option in ("2", "3", "4", "5", "6", "7"):
             if _avl is None:
                 print("Primero construya el árbol (opción 1).")
                 continue
 
             if option == "2":
                 value = ask_int("Valor a insertar: ", minimum=0, maximum=UINT32_MAX)
+                report = OperationReport()
                 start = time.perf_counter()
-                _avl.insert(value)
+                _avl.insert(value, report)
                 elapsed = time.perf_counter() - start
                 print(f"Valor insertado. Repeticiones actuales: {_avl.search(value)}")
+                show_changes(_avl, report)
                 record_time(
                     "AVL: inserción", _avl.total_values, _avl.node_count, elapsed
                 )
@@ -503,29 +605,37 @@ def option_avl() -> None:
                 start = time.perf_counter()
                 repetitions = _avl.search(value)
                 elapsed = time.perf_counter() - start
+                path = _avl.search_path(value)
                 if repetitions:
-                    print(f"Encontrado. Aparece {fmt_int(repetitions)} veces.")
+                    veces = "vez" if repetitions == 1 else "veces"
+                    print(f"Encontrado. Aparece {fmt_int(repetitions)} {veces}.")
                 else:
                     print("El valor no está en el árbol.")
+                show_search(_avl, path, value)
                 record_time(
                     "AVL: búsqueda", _avl.total_values, _avl.node_count, elapsed
                 )
 
             elif option == "4":
                 value = ask_int("Valor a eliminar: ", minimum=0, maximum=UINT32_MAX)
+                report = OperationReport()
                 start = time.perf_counter()
-                removed = _avl.delete(value)
+                removed = _avl.delete(value, report)
                 elapsed = time.perf_counter() - start
                 if removed:
                     print("Valor eliminado (una aparición).")
                 else:
                     print("El valor no está en el árbol.")
+                show_changes(_avl, report)
                 record_time(
                     "AVL: eliminación", _avl.total_values, _avl.node_count, elapsed
                 )
 
             elif option == "5":
                 show_avl(_avl)
+
+            elif option == "6":
+                show_avl_subtree(_avl)
 
             else:
                 _avl = None

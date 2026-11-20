@@ -97,10 +97,24 @@ memoria.
 
 Se muestran:
 
-- Altura del árbol.
-- Cantidad de nodos únicos.
-- Cantidad total de valores almacenados.
+- Altura del árbol, cantidad de nodos únicos y total de valores almacenados.
+- Un dibujo del árbol con `├──` y `└──`, con el contador entre paréntesis.
+  Si el árbol tiene hasta 63 nodos se dibuja completo; si no, se muestran los
+  primeros niveles y se indica con `…` dónde se corta una rama.
+- En cada inserción o eliminación, un reporte con el camino recorrido, el nodo
+  nuevo o el cambio de contador, las rotaciones aplicadas, la altura antes y
+  después, y un dibujo del subárbol afectado con los nodos resaltados.
+  Las marcas son `[N]` nuevo, `[C]` contador, `[R]` rotación, `[S]` sucesor,
+  `[E]` eliminado y `[F]` encontrado.
+- En las búsquedas, el camino recorrido y el nodo encontrado resaltado.
+- El submenú AVL permite explorar un subárbol desde cualquier clave existente,
+  con profundidad configurable.
 - Recorrido InOrden con los primeros 50 elementos.
+
+Los colores ANSI se usan solo si la terminal los soporta (se puede forzar con
+`FORCE_COLOR=1` o desactivar con `NO_COLOR=1`). Sin color, las marcas textuales
+siguen indicando los cambios. El dibujo siempre está acotado, incluso si el
+árbol tiene millones de nodos.
 
 ### Heap binario
 
@@ -266,7 +280,8 @@ src/ayda/config.py        Rutas y constantes
 src/ayda/file_io.py       Generación, lectura, escritura y verificación
 src/ayda/analysis.py      Máximo, mínimo y frecuencias
 src/ayda/sorting.py       Counting Sort, Selection Sort y Heap Sort
-src/ayda/avl.py           Árbol AVL
+src/ayda/avl.py           Árbol AVL y reporte de cambios
+src/ayda/avl_view.py      Dibujo del AVL y resaltado de nodos
 src/ayda/heap.py          Max-Heap y Min-Heap
 src/ayda/timing.py        Medición y registro de tiempos
 src/ayda/main.py          Menú y flujo del programa
